@@ -25,3 +25,7 @@ export const useAuthStore = create<AuthState>()(
 export const getAuthToken = () => {
   return useAuthStore.getState().credentials?.access_token;
 };
+
+export const getRefreshToken = () => {
+  return useAuthStore.getState().credentials?.refresh_token;
+};
