@@ -11,7 +11,8 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
+      console.log(res.data, 'Response data ...');
+      localStorage.setItem("token", res.data?.access_token);
       navigate("/dashboard");
     } catch (error: any) {
       alert(error.response?.data?.detail || "Login failed");
@@ -19,7 +20,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form onSubmit={handleSubmit} className="p-6 bg-white rounded shadow-md w-96">
         <h2 className="mb-4 text-2xl font-bold text-center">Login</h2>
         <input
@@ -28,6 +29,7 @@ export default function LoginPage() {
           className="w-full p-2 mb-4 border rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <input
           type="password"
@@ -35,6 +37,7 @@ export default function LoginPage() {
           className="w-full p-2 mb-4 border rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <button
           type="submit"
