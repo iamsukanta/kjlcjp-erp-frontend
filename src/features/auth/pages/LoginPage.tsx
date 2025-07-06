@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../store/authStore";
 import api from "@/api/axios.ts";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", { email, password });
-      console.log(res.data, 'Response data ...');
-      localStorage.setItem("token", res.data?.access_token);
+      console.log(res.data, 'response ..');
+      login(res.data.credentials, res.data.user);
       navigate("/dashboard");
     } catch (error: any) {
       alert(error.response?.data?.detail || "Login failed");
