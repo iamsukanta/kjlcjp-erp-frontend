@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Income } from "../../types/income";
-import { createIncome } from "../../services/incomeApi";
+import { createIncome, updateIncome } from "../../services/incomeApi";
 
 interface Props {
   initialData?: Income;
@@ -12,6 +12,7 @@ interface Props {
 const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
+  // const [form, setForm] = useState<Income>(initialData);
   const [form, setForm] = useState<Income>(initialData || {
     title: "",
     source: "",
@@ -19,10 +20,15 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
     collection_sin: "",
     collection_date: "",
     income_type: "",
-    file: null,
     note: "",
   });
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(initialData) {
+      setForm(initialData);
+    }
+  }, [initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -40,7 +46,12 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createIncome(form);
+      if(id) {
+        await updateIncome(Number(id), form)
+      } else {
+        await createIncome(form);
+      }
+      
       navigate("/dashboard/income");
     } catch(error) {
       console.log(error);
@@ -133,6 +144,13 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
             onChange={handleFile}
             className="border border-gray-400 file-input file-input-bordered w-full px-3 py-2 rounded"
           />
+          {
+            initialData?.file && (
+              <div className="flex">
+                <h4>Uploaded File: {initialData.file}</h4>
+              </div>
+            )
+          }
         </div>
 
         <div className="md:col-span-2">

@@ -1,11 +1,11 @@
 import React from "react";
-
 interface TableProps {
   columns: string[];
-  data: Record<string, string | number>[];
+  data: Record<string, any>[];
+  renderActions?: (index: number) => React.ReactNode;
 }
 
-const Table: React.FC<TableProps> = ({ columns, data }) => {
+const Table: React.FC<TableProps> = ({ columns, data, renderActions }) => {
   return (
     <div className="overflow-x-auto rounded shadow">
       <table className="min-w-full divide-y divide-gray-200 bg-white">
@@ -14,11 +14,16 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
             {columns.map((col) => (
               <th
                 key={col}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs text-gray-700 uppercase tracking-wider font-bold"
               >
                 {col}
               </th>
             ))}
+            {renderActions && (
+              <th className="px-6 py-3 text-left text-xs text-gray-700 uppercase tracking-wider font-bold">
+                Action
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -29,6 +34,13 @@ const Table: React.FC<TableProps> = ({ columns, data }) => {
                   {row[col]}
                 </td>
               ))}
+              {renderActions && (
+                <td className="px-6 py-4">
+                  <div className="flex items-center space-x-2">
+                    {renderActions(row['id'])}
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

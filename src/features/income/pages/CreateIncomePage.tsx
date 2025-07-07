@@ -1,6 +1,7 @@
 import IncomeForm from "../../../components/forms/IncomeForm";
 import { createIncome } from "../../../services/incomeApi";
 import { useNavigate } from "react-router-dom";
+import { defaultIncome } from "../../../store/incomeStore";
 
 const CreateIncomePage = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const CreateIncomePage = () => {
 
   return (
     <div className="p-6">
-      <IncomeForm onSubmit={handleSubmit} />
+      <IncomeForm initialData={defaultIncome} onSubmit={handleSubmit} />
     </div>
   );
 };

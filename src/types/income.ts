@@ -9,3 +9,10 @@ export interface Income {
   file?: File | null;
   note?: string;
 }
+
+export interface IncomeTable {
+  id: number;
+  title: string;
+  source?: string;
+  amount: number;
+}

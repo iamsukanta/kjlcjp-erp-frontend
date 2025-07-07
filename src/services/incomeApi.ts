@@ -1,6 +1,15 @@
 import api from "../api/axios"; // your axios instance
 import type { Income } from "../types/income";
 
+export const getIncomes = async (): Promise<Income[]> => {
+  try {
+    const res = await api.get("/incomes");
+    return res.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.detail || "Failed to load incomes");
+  }
+};
+
 export const createIncome = async (data: Income) => {
   const formData = new FormData();
   for (const key in data) {
@@ -30,6 +39,19 @@ export const updateIncome = async (id: number, data: Income) => {
 };
 
 export const getIncomeById = async (id: number) => {
-  const res = await api.get(`/incomes/${id}`);
-  return res.data;
+  try {
+    const res = await api.get(`/incomes/${id}`);
+    return res.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.detail || "Failed to load incomes");
+  }
+};
+
+export const deleteIncomeById = async (id: number) => {
+  try {
+    const res = await api.delete(`/incomes/${id}`);
+    return res.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.detail || "Failed to delete incomes.");
+  }
 };
