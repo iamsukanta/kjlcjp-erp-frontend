@@ -30,8 +30,11 @@ const EditIncomePage = () => {
 
   const handleSubmit = async (data: Income) => {
     try {
+      console.log('It worksss ..');
       await updateIncome(Number(id), data);
-      navigate("/incomes");
+      setIncome(defaultIncome);
+      navigate("/");
+      console.log('It worksss 44..');
     } catch (err) {
       console.error("Update error", err);
     }
@@ -41,7 +44,7 @@ const EditIncomePage = () => {
 
   return (
     <div className="p-6">
-      <IncomeForm initialData={income} onSubmit={handleSubmit} isEdit />
+      <IncomeForm initialData={income} isEdit />
     </div>
   );
 };

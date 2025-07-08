@@ -7,7 +7,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const login = useAuthStore((state) => state.login);
+  const { login, setPermissions } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,6 +15,13 @@ export default function LoginPage() {
       const res = await api.post("/auth/login", { email, password });
       console.log(res.data, 'response ..');
       login(res.data.credentials, res.data.user);
+      let permissions:string[] = [];
+      res.data.user?.roles.forEach((role: any) => {
+        role.permissions.forEach((permission: any) => {
+          permissions.push(permission.name);
+        });
+      });
+      setPermissions(permissions);
       navigate("/dashboard");
     } catch (error: any) {
       alert(error.response?.data?.detail || "Login failed");

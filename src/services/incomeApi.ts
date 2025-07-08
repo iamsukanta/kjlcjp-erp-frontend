@@ -25,17 +25,21 @@ export const createIncome = async (data: Income) => {
 };
 
 export const updateIncome = async (id: number, data: Income) => {
-  const formData = new FormData();
-  for (const key in data) {
-    if (data[key as keyof Income]) {
-      formData.append(key, data[key as keyof Income] as any);
+  try {
+    const formData = new FormData();
+    for (const key in data) {
+      if (data[key as keyof Income]) {
+        formData.append(key, data[key as keyof Income] as any);
+      }
     }
-  }
 
-  const res = await api.put(`/incomes/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
+    const res = await api.put(`/incomes/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  } catch( err: any) {
+    throw new Error(err.response?.data?.detail || "Failed to update incomes");
+  }
 };
 
 export const getIncomeById = async (id: number) => {

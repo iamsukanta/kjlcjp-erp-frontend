@@ -18,7 +18,7 @@ export const defaultCost: Cost = {
   entry_name: "",
   cost_date: "",
   cost_type: "",
-  cost_document: null,
+  cost_document: "",
   note: "",
 };
 

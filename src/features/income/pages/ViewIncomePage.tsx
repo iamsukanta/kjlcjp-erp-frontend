@@ -32,16 +32,21 @@ const ViewIncomePage = () => {
   const isPdf = income?.income_document?.endsWith(".pdf");
   const isImage = income?.income_document?.match(/\.(jpeg|jpg|png|gif|webp)$/i);
 
+  const documentSrc = (value: string) => {
+    return `${import.meta.env.VITE_BASE_URL}/${value}`
+  };
+
   return (
     <div className="p-6 max-w-3xl mx-auto bg-white shadow rounded">
-      <h1 className="text-2xl font-bold mb-6">View Income</h1>
+      <h1 className="text-2xl font-bold mb-6">VIEW INCOME</h1>
+      <hr /> <br />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div><span className="font-semibold">Title:</span> {income.title}</div>
         <div><span className="font-semibold">Amount:</span> ${income.amount}</div>
         <div><span className="font-semibold">Source:</span> {income.source || "-"}</div>
         <div><span className="font-semibold">Type:</span> {income.income_type}</div>
-        <div><span className="font-semibold">Collected By:</span> {income.collection_sin || "-"}</div>
+        <div><span className="font-semibold">Collection SIN:</span> {income.collection_sin || "-"}</div>
         <div><span className="font-semibold">Collection Date:</span> {income.collection_date || "-"}</div>
         <div className="sm:col-span-2">
           <span className="font-semibold">Note:</span>
@@ -55,14 +60,14 @@ const ViewIncomePage = () => {
           <h3 className="font-semibold mb-2">Uploaded File:</h3>
           {isImage && (
             <img
-              src={income.income_document}
+              src={ documentSrc(income.income_document) }
               alt="Uploaded Income File"
               className="max-w-full h-auto rounded border"
             />
           )}
           {isPdf && (
             <iframe
-              src={income.income_document}
+              src={ documentSrc(income.income_document) }
               title="PDF Viewer"
               className="w-full h-[600px] border rounded"
             />

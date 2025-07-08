@@ -52,7 +52,7 @@ const CostForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
         await createCost(form);
       }
       
-      navigate("/dashboard/cost");
+      navigate("/dashboard/costs");
     } catch(error) {
       console.log(error);
     }

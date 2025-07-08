@@ -31,7 +31,7 @@ const EditCostPage = () => {
   const handleSubmit = async (data: Cost) => {
     try {
       await updateCost(Number(id), data);
-      navigate("/costs");
+      navigate("/dashboard/costs");
     } catch (err) {
       console.error("Update error", err);
     }

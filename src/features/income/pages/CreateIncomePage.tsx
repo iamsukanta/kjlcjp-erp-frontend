@@ -5,11 +5,10 @@ import { defaultIncome } from "../../../store/incomeStore";
 
 const CreateIncomePage = () => {
   const navigate = useNavigate();
-
   const handleSubmit = async (data: any) => {
     try {
       await createIncome(data);
-      navigate("/incomes");
+      navigate("/dashboard/incomes");
     } catch (error) {
       console.error("Create income error", error);
     }
@@ -17,7 +16,7 @@ const CreateIncomePage = () => {
 
   return (
     <div className="p-6">
-      <IncomeForm initialData={defaultIncome} onSubmit={handleSubmit} />
+      <IncomeForm initialData={defaultIncome} />
     </div>
   );
 };

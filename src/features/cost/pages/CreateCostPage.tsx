@@ -9,7 +9,7 @@ const CreateCostPage = () => {
   const handleSubmit = async (data: any) => {
     try {
       await createCost(data);
-      navigate("/costs");
+      navigate("/dashboard/costs");
     } catch (error) {
       console.error("Create cost error", error);
     }

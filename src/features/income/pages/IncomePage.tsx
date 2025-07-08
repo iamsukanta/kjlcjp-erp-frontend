@@ -8,6 +8,7 @@ import Table from "@/components/ui/Table";
 import { useIncomeStore } from "../../../store/incomeStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { WithPermission } from "../../../components/hoc/WithPermission";
 import { getIncomes, deleteIncomeById } from "../../../services/incomeApi";
 
 const Income: React.FC = () => {
@@ -32,16 +33,24 @@ const Income: React.FC = () => {
 
   const gotoCreateIncomePage = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard/income/create");
+    navigate("/dashboard/incomes/create");
   };
 
-  const columns = ["Date", "Amount", "Source", "Title"];
+  const calculateTotalIncome = () => {
+    let totalIncome:number = 0;
+    incomes.forEach((income) => {
+      totalIncome = totalIncome + income.amount
+    });
+    return totalIncome;
+  }
+
+  const columns = ["Date", "Source", "Title", "Amount"];
   const tableData = incomes.map((income) => ({
     id: income.id,
     Date: income.collection_date?.slice(0, 10) || "-",
     Amount: `$${income.amount}`,
     Source: income.source || "-",
-    Title: income.title,
+    Title: income.title
   }));
 
   const handleView = (id: number) => navigate(`/dashboard/incomes/view/${id}`);
@@ -97,14 +106,17 @@ const Income: React.FC = () => {
               >
                 <PencilSquareIcon className="w-5 h-5" />
               </button>
-              <button
-                onClick={() => handleDelete(id)}
-                className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
-              >
-                <TrashIcon className="w-5 h-5" />
-              </button>
+              <WithPermission permission="create_company">
+                <button
+                  onClick={() => handleDelete(id)}
+                  className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                >
+                  <TrashIcon className="w-5 h-5" />
+                </button>
+              </WithPermission>
             </>
           )}
+          totalAmount = { calculateTotalIncome() }
         />
       )}
     </div>

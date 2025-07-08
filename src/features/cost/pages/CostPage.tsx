@@ -32,10 +32,10 @@ const Cost: React.FC = () => {
 
   const gotoCreateCostPage = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard/Cost/create");
+    navigate("/dashboard/costs/create");
   };
 
-  const columns = ["Date", "Amount", "Voucher", "Title"];
+  const columns = ["Date", "Voucher", "Title", "Amount"];
   const tableData = costs.map((Cost) => ({
     id: Cost.id,
     Date: Cost.cost_date?.slice(0, 10) || "-",
@@ -43,6 +43,14 @@ const Cost: React.FC = () => {
     Voucher: Cost.voucher || "-",
     Title: Cost.title,
   }));
+
+  const calculateTotalCost = () => {
+    let totalCost:number = 0;
+    costs.forEach((cost) => {
+      totalCost = totalCost + cost.amount
+    });
+    return totalCost;
+  }
 
   const handleView = (id: number) => navigate(`/dashboard/Costs/view/${id}`);
   const handleEdit = (id: number) => navigate(`/dashboard/Costs/edit/${id}`);
@@ -105,6 +113,7 @@ const Cost: React.FC = () => {
               </button>
             </>
           )}
+          totalAmount = { calculateTotalCost() }
         />
       )}
     </div>

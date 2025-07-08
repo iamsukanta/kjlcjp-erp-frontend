@@ -5,11 +5,10 @@ import { createIncome, updateIncome } from "../../services/incomeApi";
 
 interface Props {
   initialData?: Income;
-  onSubmit: (data: Income) => void;
   isEdit?: boolean;
 }
 
-const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
+const IncomeForm: React.FC<Props> = ({ initialData, isEdit }) => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<Income>(initialData || {
@@ -52,7 +51,7 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
         await createIncome(form);
       }
       
-      navigate("/dashboard/income");
+      navigate("/dashboard/incomes");
     } catch(error) {
       console.log(error);
     }
