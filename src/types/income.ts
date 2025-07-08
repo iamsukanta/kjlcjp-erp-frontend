@@ -6,13 +6,7 @@ export interface Income {
   collection_sin?: string;
   collection_date?: string;
   income_type: string;
-  file?: File | null;
+  income_document?: string;
+  file?: File | null
   note?: string;
-}
-
-export interface IncomeTable {
-  id: number;
-  title: string;
-  source?: string;
-  amount: number;
 }

@@ -3,8 +3,8 @@ import { NavLink } from "react-router-dom";
 const Sidebar = () => {
   const links = [
     { to: "/dashboard", label: "Dashboard" },
-    { to: "/dashboard/income", label: "Income" },
-    { to: "/dashboard/cost", label: "Cost" },
+    { to: "/dashboard/incomes", label: "Income" },
+    { to: "/dashboard/costs", label: "Cost" },
   ];
 
   return (

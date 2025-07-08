@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import type { Income } from "../../types/income";
-import { createIncome, updateIncome } from "../../services/incomeApi";
+import type { Cost } from "../../types/cost";
+import { createCost, updateCost } from "../../services/costApi";
 
 interface Props {
-  initialData?: Income;
-  onSubmit: (data: Income) => void;
+  initialData?: Cost;
+  onSubmit: (data: Cost) => void;
   isEdit?: boolean;
 }
 
-const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
+const CostForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<Income>(initialData || {
+  const [form, setForm] = useState<Cost>(initialData || {
     title: "",
-    source: "",
+    voucher: "",
     amount: 0,
-    collection_sin: "",
-    collection_date: "",
-    income_type: "",
-    income_document: "",
+    entry_name: "",
+    cost_date: "",
+    cost_type: "",
+    cost_document: "",
     note: "",
   });
   const navigate = useNavigate();
@@ -47,12 +47,12 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
     e.preventDefault();
     try {
       if(id) {
-        await updateIncome(Number(id), form)
+        await updateCost(Number(id), form)
       } else {
-        await createIncome(form);
+        await createCost(form);
       }
       
-      navigate("/dashboard/income");
+      navigate("/dashboard/cost");
     } catch(error) {
       console.log(error);
     }
@@ -60,7 +60,7 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
 
   return (
     <div className="p-6 bg-white shadow-md rounded-xl max-w-4xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">{id ? "Edit Income" : "Create Income"}</h2>
+      <h2 className="text-2xl font-semibold mb-4">{id ? "Edit Cost" : "Create Cost"}</h2>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -76,11 +76,11 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Source</label>
+          <label className="block text-sm font-medium">Voucher</label>
           <input
-            name="source"
+            name="voucher"
             type="text"
-            value={form.source}
+            value={form.voucher}
             onChange={handleChange}
             className="border border-gray-400 input input-bordered w-full px-3 py-2 rounded"
           />
@@ -99,32 +99,32 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Collection SIN</label>
+          <label className="block text-sm font-medium">Entry Name</label>
           <input
-            name="collection_sin"
+            name="entry_name"
             type="text"
-            value={form.collection_sin}
+            value={form.entry_name}
             onChange={handleChange}
             className="border border-gray-400 input input-bordered w-full px-3 py-2 rounded"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Collection Date</label>
+          <label className="block text-sm font-medium">Cost Date</label>
           <input
-            name="collection_date"
+            name="cost_date"
             type="datetime-local"
-            value={form.collection_date?.slice(0, 16) || ""}
+            value={form.cost_date?.slice(0, 16) || ""}
             onChange={handleChange}
             className="border border-gray-400 input input-bordered w-full px-3 py-2 rounded"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Income Type</label>
+          <label className="block text-sm font-medium">Cost Type</label>
           <select
-            name="income_type"
-            value={form.income_type}
+            name="cost_type"
+            value={form.cost_type}
             onChange={handleChange}
             className="border border-gray-400 input input-bordered w-full px-3 py-2 rounded"
             required
@@ -145,9 +145,9 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
             className="border border-gray-400 file-input file-input-bordered w-full px-3 py-2 rounded"
           />
           {
-            initialData?.income_document && (
+            initialData?.cost_document && (
               <div className="flex">
-                <h4>Uploaded File: {initialData.income_document}</h4>
+                <h4>Uploaded File: {initialData.cost_document}</h4>
               </div>
             )
           }
@@ -178,4 +178,4 @@ const IncomeForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
   );
 };
 
-export default IncomeForm;
+export default CostForm;

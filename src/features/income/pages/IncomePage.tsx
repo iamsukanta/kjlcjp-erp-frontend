@@ -44,8 +44,8 @@ const Income: React.FC = () => {
     Title: income.title,
   }));
 
-  const handleView = (id: number) => navigate(`/dashboard/income/view/${id}`);
-  const handleEdit = (id: number) => navigate(`/dashboard/income/edit/${id}`);
+  const handleView = (id: number) => navigate(`/dashboard/incomes/view/${id}`);
+  const handleEdit = (id: number) => navigate(`/dashboard/incomes/edit/${id}`);
   const handleDelete = async (id: number) => {
     if (confirm("Are you sure you want to delete this record?")) {
       try {
@@ -87,19 +87,19 @@ const Income: React.FC = () => {
             <>
               <button
                 onClick={() => handleView(id)}
-                className="p-1 text-blue-600 hover:text-blue-800"
+                className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
               >
                 <EyeIcon className="w-5 h-5" />
               </button>
               <button
                 onClick={() => handleEdit(id)}
-                className="p-1 text-yellow-600 hover:text-yellow-800"
+                className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
               >
                 <PencilSquareIcon className="w-5 h-5" />
               </button>
               <button
                 onClick={() => handleDelete(id)}
-                className="p-1 text-red-600 hover:text-red-800"
+                className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
               >
                 <TrashIcon className="w-5 h-5" />
               </button>

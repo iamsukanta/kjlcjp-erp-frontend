@@ -18,7 +18,7 @@ export const defaultIncome: Income = {
   collection_sin: "",
   collection_date: "",
   income_type: "",
-  file: null,
+  income_document: "",
   note: "",
 };
 
