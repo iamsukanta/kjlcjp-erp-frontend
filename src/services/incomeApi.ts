@@ -1,7 +1,7 @@
 import api from "../api/axios"; // your axios instance
 import type { Income } from "../types/income";
 
-export const getIncomes = async (filters: any): Promise<Income[]> => {
+export const getIncomes = async (filters: any, page:int, limit:int): Promise<any> => {
   try {
     const params = new URLSearchParams();
     if (filters.incomeType) params.append("income_type", filters.incomeType);
@@ -12,6 +12,8 @@ export const getIncomes = async (filters: any): Promise<Income[]> => {
       if (filters.customTo) params.append("to_date", filters.customTo);
     }
 
+    params.append("page", page);
+    params.append("limit", limit);
     const res = await api.get(`/incomes?${params.toString()}`);
     return res.data;
   } catch (err: any) {

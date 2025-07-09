@@ -11,11 +11,18 @@ import { toast } from "react-toastify";
 import { WithPermission } from "../../../components/hoc/WithPermission";
 import { getIncomes, deleteIncomeById } from "../../../services/incomeApi";
 import IncomeFilter from "../../../components/filters/IncomeFilter";
+import Pagination from "../../../components/pagination/pagination";
 
 const Income: React.FC = () => {
   const navigate = useNavigate();
   const setIncomes = useIncomeStore((state) => state.setIncomes);
+  const setPage = useIncomeStore((state) => state.setPage);
+  const setLimit = useIncomeStore((state) => state.setLimit);
+  const setTotalIncomeItems = useIncomeStore((state) => state.setTotalIncomeItems);
   const incomes = useIncomeStore((state) => state.incomes);
+  const pageNo= useIncomeStore((state) => state.page);
+  const pageLimit = useIncomeStore((state) => state.limit);
+  const totalIncomeItems = useIncomeStore((state) => state.totalIncomeItems);
   const [loading, setLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
     incomeType: "",
@@ -36,12 +43,18 @@ const Income: React.FC = () => {
     try {
       if (activeFilters.dateRange === "custom") {
         if (activeFilters.customFrom && activeFilters.customTo) {
-          const data = await getIncomes(activeFilters);
-          setIncomes(data);
+          const {items, page, limit, total} = await getIncomes(activeFilters, pageNo, pageLimit);
+          setIncomes(items);
+          setPage(page);
+          setLimit(limit);
+          setTotalIncomeItems(total);
         }
       } else {
-        const data = await getIncomes(activeFilters);
-        setIncomes(data);
+        const {items, page, limit, total} = await getIncomes(activeFilters, pageNo, pageLimit);
+        setIncomes(items);
+        setPage(page);
+        setLimit(limit);
+        setTotalIncomeItems(total);
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -52,7 +65,10 @@ const Income: React.FC = () => {
 
   const handleFilterChange = (name: string, value: string) => {
     setFilters(prev => {
-      const updated = { ...prev, [name]: value };
+      let updated = { ...prev, [name]: value };
+      if(name == "dateRange" && value == "custom") {
+        updated = { ...prev, [name]: value, ["customFrom"]: "", ["customTo"]: "" };
+      }
       if (name === "titleSearch") {
         if (debounceTimer.current) clearTimeout(debounceTimer.current);
         debounceTimer.current = setTimeout(() => {
@@ -95,10 +111,15 @@ const Income: React.FC = () => {
     return totalIncome;
   }
 
-  const columns = ["Title", "Collection Date", "Source", "Income Type", "Amount"];
+  const totalPages = Math.ceil(totalIncomeItems / pageLimit);
+  const changePage = (value: int) => {
+    setPage(value);
+    fetchData(debouncedFilters);
+  }
+  const columns = ["Title", "Created Date", "Source", "Income Type", "Amount"];
   const tableData = incomes.map((income) => ({
     id: income.id,
-    "Collection Date": income.collection_date?.slice(0, 10) || "-",
+    "Created Date": income.created_at?.slice(0, 10) || "-",
     Amount: `$${income.amount}`,
     Source: income.source || "-",
     Title: income.title,
@@ -147,35 +168,43 @@ const Income: React.FC = () => {
       {loading ? (
         <div className="text-center py-10 text-gray-500">Loading incomes...</div>
       ) : (
-        <Table
-          columns={columns}
-          data={tableData}
-          renderActions={(id:number) => (
-            <>
-              <button
-                onClick={() => handleView(id)}
-                className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
-              >
-                <EyeIcon className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => handleEdit(id)}
-                className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
-              >
-                <PencilSquareIcon className="w-5 h-5" />
-              </button>
-              <WithPermission permission="delete_company">
+        <div>
+          <Table
+            columns={columns}
+            data={tableData}
+            renderActions={(id:number) => (
+              <>
                 <button
-                  onClick={() => handleDelete(id)}
-                  className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                  onClick={() => handleView(id)}
+                  className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
                 >
-                  <TrashIcon className="w-5 h-5" />
+                  <EyeIcon className="w-5 h-5" />
                 </button>
-              </WithPermission>
-            </>
-          )}
-          totalAmount = { calculateTotalIncome() }
-        />
+                <button
+                  onClick={() => handleEdit(id)}
+                  className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
+                >
+                  <PencilSquareIcon className="w-5 h-5" />
+                </button>
+                <WithPermission permission="delete_company">
+                  <button
+                    onClick={() => handleDelete(id)}
+                    className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                </WithPermission>
+              </>
+            )}
+            totalAmount = { calculateTotalIncome() }
+          />
+
+          <Pagination
+            currentPage={pageNo}
+            totalPages={totalPages}
+            onPageChange={(newPage) => changePage(newPage)}
+          />
+        </div>
       )}
     </div>
   );
