@@ -35,13 +35,14 @@ const Cost: React.FC = () => {
     navigate("/dashboard/costs/create");
   };
 
-  const columns = ["Date", "Voucher", "Title", "Amount"];
+  const columns = ["Title", "Cost Date", "Voucher", "Cost Type", "Amount"];
   const tableData = costs.map((Cost) => ({
     id: Cost.id,
-    Date: Cost.cost_date?.slice(0, 10) || "-",
+    "Cost Date": Cost.cost_date?.slice(0, 10) || "-",
     Amount: `$${Cost.amount}`,
     Voucher: Cost.voucher || "-",
     Title: Cost.title,
+    "Cost Type": Cost?.cost_type.toUpperCase()
   }));
 
   const calculateTotalCost = () => {

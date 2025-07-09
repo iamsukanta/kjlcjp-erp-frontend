@@ -44,9 +44,9 @@ const Table: React.FC<TableProps> = ({ columns, data, renderActions, totalAmount
               )}
             </tr>
           ))}
-          { totalAmount && (
+          { totalAmount !== undefined && (
             <tr className="bg-gray-100">
-              <td colSpan={3} className="px-6 py-4 text-right font-semibold text-gray-900">
+              <td colSpan={4} className="px-6 py-4 text-right font-semibold text-gray-900">
                 Total:
               </td>
               <td colSpan={2} className="px-6 py-4 font-semibold text-gray-900">

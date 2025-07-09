@@ -1,9 +1,18 @@
 import api from "../api/axios"; // your axios instance
 import type { Income } from "../types/income";
 
-export const getIncomes = async (): Promise<Income[]> => {
+export const getIncomes = async (filters: any): Promise<Income[]> => {
   try {
-    const res = await api.get("/incomes");
+    const params = new URLSearchParams();
+    if (filters.incomeType) params.append("income_type", filters.incomeType);
+    if (filters.titleSearch) params.append("title", filters.titleSearch);
+    if (filters.dateRange) params.append("date_range", filters.dateRange);
+    if (filters.dateRange === "custom") {
+      if (filters.customFrom) params.append("from_date", filters.customFrom);
+      if (filters.customTo) params.append("to_date", filters.customTo);
+    }
+
+    const res = await api.get(`/incomes?${params.toString()}`);
     return res.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Failed to load incomes");

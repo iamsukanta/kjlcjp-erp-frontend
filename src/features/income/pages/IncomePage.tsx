@@ -3,33 +3,84 @@ import {
   PencilSquareIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import Table from "@/components/ui/Table";
 import { useIncomeStore } from "../../../store/incomeStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { WithPermission } from "../../../components/hoc/WithPermission";
 import { getIncomes, deleteIncomeById } from "../../../services/incomeApi";
+import IncomeFilter from "../../../components/filters/IncomeFilter";
 
 const Income: React.FC = () => {
   const navigate = useNavigate();
   const setIncomes = useIncomeStore((state) => state.setIncomes);
   const incomes = useIncomeStore((state) => state.incomes);
   const [loading, setLoading] = useState<boolean>(false);
+  const [filters, setFilters] = useState({
+    incomeType: "",
+    dateRange: "",
+    customFrom: "",
+    customTo: "",
+    titleSearch: ""
+  });
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const data = await getIncomes();
+    fetchData(debouncedFilters);
+  }, [debouncedFilters]);
+
+  const fetchData = async (activeFilters: typeof filters) => {
+    setLoading(true);
+    try {
+      if (activeFilters.dateRange === "custom") {
+        if (activeFilters.customFrom && activeFilters.customTo) {
+          const data = await getIncomes(activeFilters);
+          setIncomes(data);
+        }
+      } else {
+        const data = await getIncomes(activeFilters);
         setIncomes(data);
-      } catch (error: any) {
-        toast.error(error.message); // Clean error from service
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchData();
-  }, []);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (name: string, value: string) => {
+    setFilters(prev => {
+      const updated = { ...prev, [name]: value };
+      if (name === "titleSearch") {
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+          setDebouncedFilters(updated);
+        }, 500);
+      } else {
+        setDebouncedFilters(updated);
+      }
+      return updated;
+    });
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      incomeType: "",
+      dateRange: "",
+      customFrom: "",
+      customTo: "",
+      titleSearch: ""
+    });
+    fetchData({
+      incomeType: "",
+      dateRange: "",
+      customFrom: "",
+      customTo: "",
+      titleSearch: ""
+    });
+  };
 
   const gotoCreateIncomePage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,13 +95,14 @@ const Income: React.FC = () => {
     return totalIncome;
   }
 
-  const columns = ["Date", "Source", "Title", "Amount"];
+  const columns = ["Title", "Collection Date", "Source", "Income Type", "Amount"];
   const tableData = incomes.map((income) => ({
     id: income.id,
-    Date: income.collection_date?.slice(0, 10) || "-",
+    "Collection Date": income.collection_date?.slice(0, 10) || "-",
     Amount: `$${income.amount}`,
     Source: income.source || "-",
-    Title: income.title
+    Title: income.title,
+    "Income Type": income?.income_type.toUpperCase()
   }));
 
   const handleView = (id: number) => navigate(`/dashboard/incomes/view/${id}`);
@@ -84,6 +136,12 @@ const Income: React.FC = () => {
         </button>
       </div>
 
+      <hr className="my-3" /> <br />
+
+      <div className="flex justify-end items-center">
+        <IncomeFilter filters={filters} onChange={handleFilterChange} onReset={resetFilters} />
+      </div>
+
       <br />
 
       {loading ? (
@@ -106,7 +164,7 @@ const Income: React.FC = () => {
               >
                 <PencilSquareIcon className="w-5 h-5" />
               </button>
-              <WithPermission permission="create_company">
+              <WithPermission permission="delete_company">
                 <button
                   onClick={() => handleDelete(id)}
                   className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
