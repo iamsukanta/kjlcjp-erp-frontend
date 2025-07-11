@@ -50,7 +50,7 @@ const Table: React.FC<TableProps> = ({ columns, data, renderActions, totalAmount
                 Total:
               </td>
               <td colSpan={renderActions?2:1} className="px-6 py-4 font-semibold text-gray-900">
-                {totalAmount}
+                {totalAmount} BDT
               </td>
             </tr>
           )}

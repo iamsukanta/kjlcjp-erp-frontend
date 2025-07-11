@@ -1,10 +1,10 @@
-import api from "../api/axios"; // your axios instance
+import api from "../api/axios";
 import type { Income } from "../types/income";
 
-export const getIncomes = async (filters: any, page:int, limit:int): Promise<any> => {
+export const getIncomes = async (filters: any, page:number, limit:number): Promise<any> => {
   try {
     const params = new URLSearchParams();
-    if (filters.incomeType) params.append("income_type", filters.incomeType);
+    if (filters.type) params.append("income_type", filters.type);
     if (filters.titleSearch) params.append("title", filters.titleSearch);
     if (filters.dateRange) params.append("date_range", filters.dateRange);
     if (filters.dateRange === "custom") {

@@ -5,12 +5,12 @@ import {
 } from "@heroicons/react/24/outline";
 import React, {useEffect, useState, useRef} from "react";
 import Table from "@/components/ui/Table";
-import { useIncomeStore } from "../../../store/incomeStore";
+import { useIncomeStore, getCurrentPage, getPageLimit, getIncomesList, getTotalIncomeItems } from "../../../store/incomeStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { WithPermission } from "../../../components/hoc/WithPermission";
 import { getIncomes, deleteIncomeById } from "../../../services/incomeApi";
-import IncomeFilter from "../../../components/filters/IncomeFilter";
+import ItemFilter from "../../../components/filters/ItemFilter";
 import Pagination from "../../../components/pagination/pagination";
 
 const Income: React.FC = () => {
@@ -19,13 +19,10 @@ const Income: React.FC = () => {
   const setPage = useIncomeStore((state) => state.setPage);
   const setLimit = useIncomeStore((state) => state.setLimit);
   const setTotalIncomeItems = useIncomeStore((state) => state.setTotalIncomeItems);
-  const incomes = useIncomeStore((state) => state.incomes);
-  const pageNo= useIncomeStore((state) => state.page);
-  const pageLimit = useIncomeStore((state) => state.limit);
-  const totalIncomeItems = useIncomeStore((state) => state.totalIncomeItems);
+  const incomes = getIncomesList();
   const [loading, setLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState({
-    incomeType: "",
+    type: "",
     dateRange: "",
     customFrom: "",
     customTo: "",
@@ -43,14 +40,14 @@ const Income: React.FC = () => {
     try {
       if (activeFilters.dateRange === "custom") {
         if (activeFilters.customFrom && activeFilters.customTo) {
-          const {items, page, limit, total} = await getIncomes(activeFilters, pageNo, pageLimit);
+          const {items, page, limit, total} = await getIncomes(activeFilters, getCurrentPage(), getPageLimit());
           setIncomes(items);
           setPage(page);
           setLimit(limit);
           setTotalIncomeItems(total);
         }
       } else {
-        const {items, page, limit, total} = await getIncomes(activeFilters, pageNo, pageLimit);
+        const {items, page, limit, total} = await getIncomes(activeFilters, getCurrentPage(), getPageLimit());
         setIncomes(items);
         setPage(page);
         setLimit(limit);
@@ -83,14 +80,14 @@ const Income: React.FC = () => {
 
   const resetFilters = () => {
     setFilters({
-      incomeType: "",
+      type: "",
       dateRange: "",
       customFrom: "",
       customTo: "",
       titleSearch: ""
     });
     fetchData({
-      incomeType: "",
+      type: "",
       dateRange: "",
       customFrom: "",
       customTo: "",
@@ -111,16 +108,18 @@ const Income: React.FC = () => {
     return totalIncome;
   }
 
-  const totalPages = Math.ceil(totalIncomeItems / pageLimit);
-  const changePage = (value: int) => {
+  const totalPages = Math.ceil(getTotalIncomeItems()/getPageLimit());
+  const changePage = (value: number) => {
     setPage(value);
-    fetchData(debouncedFilters);
+    setTimeout(() => {
+      fetchData(debouncedFilters);
+    }, 10);
   }
   const columns = ["Title", "Created Date", "Source", "Income Type", "Amount"];
   const tableData = incomes.map((income) => ({
     id: income.id,
     "Created Date": income.created_at?.slice(0, 10) || "-",
-    Amount: `$${income.amount}`,
+    Amount: `${income.amount}`,
     Source: income.source || "-",
     Title: income.title,
     "Income Type": income?.income_type.toUpperCase()
@@ -160,7 +159,7 @@ const Income: React.FC = () => {
       <hr className="my-3" /> <br />
 
       <div className="flex justify-end items-center">
-        <IncomeFilter filters={filters} onChange={handleFilterChange} onReset={resetFilters} />
+        <ItemFilter filters={filters} onChange={handleFilterChange} onReset={resetFilters} />
       </div>
 
       <br />
@@ -200,9 +199,9 @@ const Income: React.FC = () => {
           />
 
           <Pagination
-            currentPage={pageNo}
+            currentPage={getCurrentPage()}
             totalPages={totalPages}
-            onPageChange={(newPage) => changePage(newPage)}
+            onPageChange={(newPage: number) => changePage(newPage)}
           />
         </div>
       )}

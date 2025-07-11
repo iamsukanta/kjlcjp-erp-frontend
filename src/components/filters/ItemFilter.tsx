@@ -1,8 +1,8 @@
-// components/filters/IncomeFilter.tsx
+// components/filters/ItemFilter.tsx
 import React from "react";
-interface IncomeFilterProps {
+interface ItemFilterProps {
   filters: {
-    incomeType: string;
+    type: string;
     dateRange: string;
     customFrom: string;
     customTo: string;
@@ -12,7 +12,7 @@ interface IncomeFilterProps {
   onReset?: () => void;
 }
 
-const IncomeFilter: React.FC<IncomeFilterProps> = ({ filters, onChange, onReset }) => {
+const ItemFilter: React.FC<ItemFilterProps> = ({ filters, onChange, onReset }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     onChange(name, value);
@@ -21,8 +21,8 @@ const IncomeFilter: React.FC<IncomeFilterProps> = ({ filters, onChange, onReset 
     return (
       <div className="grid grid-cols-6 gap-2 w-full">
         <select
-          name="incomeType"
-          value={filters.incomeType}
+          name="type"
+          value={filters.type}
           onChange={handleChange}
           className="border rounded px-1 py-1 w-full"
         >
@@ -87,4 +87,4 @@ const IncomeFilter: React.FC<IncomeFilterProps> = ({ filters, onChange, onReset 
   );
 };
 
-export default IncomeFilter;
+export default ItemFilter;

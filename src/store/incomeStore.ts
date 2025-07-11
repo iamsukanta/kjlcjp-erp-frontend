@@ -42,3 +42,27 @@ export const useIncomeStore = create<IncomeState>((set) => ({
   setTotalIncomeItems: (data: number) => set({ totalIncomeItems: data }),
   setIncome: (data) => set({ income: data }),
 }));
+
+export const getCurrentPage = () => {
+  return useIncomeStore.getState().page;
+};
+
+export const getPageLimit = () => {
+  return useIncomeStore.getState().limit;
+};
+
+export const getIncomesList = () => {
+  return useIncomeStore.getState().incomes;
+}
+
+export const getIncomeDetails = () => {
+  return useIncomeStore.getState().income;
+}
+
+export const getTotalIncomeItems = () => {
+  return useIncomeStore.getState().totalIncomeItems;
+}
+
+export const getLoadingState = () => {
+  return useIncomeStore.getState().loading;
+}
