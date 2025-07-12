@@ -10,6 +10,8 @@ const Cost = lazy(() => import("@/features/cost/pages/CostPage"));
 const CostCreate = lazy(() => import("@/features/cost/pages/CreateCostPage"));
 const CostEdit = lazy(() => import("@/features/cost/pages/EditCostPage"));
 const CostView = lazy(() => import("@/features/cost/pages/ViewCostPage"));
+
+const User = lazy(() => import("@/features/users/pages/UsersPage"));
 import { createBrowserRouter } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import PermissionRoute from "./PermissionRoute";
@@ -47,6 +49,13 @@ const routes = createBrowserRouter([
           { path: "view/:id", element: <CostView /> },
           { path: "create", element: <CostCreate /> },
           { path: "edit/:id", element: <CostEdit /> },
+        ],
+      },
+
+      {
+        path: "users",
+        children: [
+          { index: true, element: <User /> },
         ],
       },
     ],
