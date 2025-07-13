@@ -20,7 +20,13 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, allR
 
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setForm({
+        name: initialData.name || "",
+        email: initialData.email || "",
+        password: "",
+        file: initialData.file || "",
+        roles: initialData.roles || [],
+      });
     }
   }, [initialData]);
 
@@ -38,8 +44,13 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, allR
     });
   };
 
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    onSave(form);
+  }
+
   return (
-    <form onSubmit={(e) => {e.preventDefault(); onSave(form)}}>
+    <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <input
           name="name"
@@ -67,7 +78,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, allR
           onChange={handleChange}
           placeholder="Password"
           className="w-full border p-2 rounded"
-          required
+          required={!initialData}
         />
 
         <div className="mb-4">
@@ -76,8 +87,9 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSave, onCancel, allR
             {allRoles.map((role) => (
               <label key={role.id} className="inline-flex items-center space-x-2">
                 <input
+                  name="roleCheckbox"
                   type="checkbox"
-                  checked={form.roles.some((r) => r.id === role.id)}
+                  checked={form?.roles?.some((r:Role) => r.id === role.id)}
                   onChange={() => toggleRole(role)}
                   className="form-checkbox h-5 w-5 text-blue-600"
                 />

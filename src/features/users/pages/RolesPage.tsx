@@ -5,38 +5,34 @@ import {
 } from "@heroicons/react/24/outline";
 import React, {useState, useEffect} from "react";
 import Table from "@/components/ui/Table";
-import type { Role, User as UserType } from "@/types/user";
+import type { Role as RoleType, Permission } from "@/types/user";
 import { WithPermission } from "../../../components/hoc/WithPermission";
-import {  useUserStore, getUsersList, getRolesList } from "../../../store/userStore";
+import {  getPermissionsList, getRolesList, useUserStore } from "../../../store/userStore";
 import BaseModal from "../../../components/modals/BaseModal";
-import UserForm from "../../../components/forms/UserForm";
-import {createUser, updateUser, deleteUser, getPermissions, getRoles, getUsers } from "../../../services/userApi";
+import RoleForm from "../../../components/forms/RoleForm";
+import {createRole, updateRole, deleteRole, getPermissions, getRoles } from "../../../services/userApi";
 
-const User: React.FC = () => {
+const Role: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
-  const setUsers = useUserStore((state) => state.setUsers);
+  const [selectedRole, setSelectedRole] = useState<RoleType | null>(null);
   const setRoles = useUserStore((state) => state.setRoles);
   const setPermissions = useUserStore((state) => state.setPermissions);
-  const columns = ["Name", "Email", "Role"];
-  const tableData = getUsersList().map((user) => ({
-    id: user.id,
-    Name: user.name,
-    Email: user.email,
-    Role: user.roles.map(r => r.name).join(", ")
+  const columns = ["Name", "Permission"];
+  const tableData = getRolesList().map((role) => ({
+    id: role.id,
+    Name: role.name,
+    Permission: role.permissions.length? role.permissions.map(r => r.name).join(", ") : 'No Permission Assigned.'
   }));
   useEffect(() => {
-    fetchUsersRolesPermissions();
+    fetchRolesRolesPermissions();
   }, []);
 
-  const fetchUsersRolesPermissions = async () => {
+  const fetchRolesRolesPermissions = async () => {
     setLoading(true);
     try {
-      const users = await getUsers();
       const roles = await getRoles();
       const permissions = await getPermissions();
-      setUsers(users);
       setRoles(roles);
       setPermissions(permissions);
     } catch (error: any) {
@@ -46,27 +42,27 @@ const User: React.FC = () => {
     }
   };
 
-  const handleSave = async (formData: UserType) => {
+  const handleSave = async (data: RoleType) => {
     try {
-      let role_ids: number[] = [];
-      formData.roles.forEach((role: Role) => {
-        role_ids.push(role.id);
+      let permission_ids: number[] = [];
+      data.permissions.forEach((permission: Permission) => {
+        permission_ids.push(permission.id);
       });
-      formData.role_ids = role_ids;
-      delete formData.roles;
-      if(selectedUser?.id) {
-        const userUpdate = await updateUser(formData, selectedUser.id);
-        let users: UserType[] = getUsersList();
-        let mapUsers = users.map((user) =>
-          user.id === userUpdate.id ? userUpdate : user
+      data.permission_ids = permission_ids;
+      delete data.permissions;
+      if(selectedRole?.id) {
+        const roleUpdate = await updateRole(data, selectedRole.id);
+        let roles: RoleType[] = getRolesList();
+        let mapRoles = roles.map((role) =>
+          role.id === roleUpdate.id ? roleUpdate : role
         );
-        setUsers(mapUsers);
+        setRoles(mapRoles);
         setModalOpen(false);
       } else {
-        const new_user = await createUser(formData);
-        const users: UserType[] = getUsersList();
-        users.push(new_user)
-        setUsers(users);
+        const new_role = await createRole(data);
+        const roles: RoleType[] = getRolesList();
+        roles.push(new_role)
+        setRoles(roles);
         setModalOpen(false);
       }
     } catch(error) {
@@ -74,28 +70,26 @@ const User: React.FC = () => {
     }
   };
 
-  const editUser = (id: number) => {
-    console.log(id, 'ppo');
-    let user = getUsersList().find((item) => item.id == id);
-    console.log(user, 'dfds');
-    setSelectedUser(user);
+  const editRole = (id: number) => {
+    let role = getRolesList().find((item) => item.id == id);
+    setSelectedRole(role);
     setModalOpen(true)
   }
 
   const modalClose = () => {
     setModalOpen(false);
-    setSelectedUser(null);
+    setSelectedRole(null);
   };
 
-  const handleDeleteUser = async (id: number) => {
-    if (confirm("Are you sure to delete this user?")) {
+  const handleDeleteRole = async (id: number) => {
+    if (confirm("Are you sure to delete this role?")) {
       try {
         setLoading(true);
-        await deleteUser(Number(id));
-        let data = getUsersList().filter(item => item.id != id);
-        setUsers(data);
+        await deleteRole(Number(id));
+        let data = getRolesList().filter(item => item.id != id);
+        setRoles(data);
       } catch (err: any) {
-        console.error("Failed to load users", err);
+        console.error("Failed to load role", err);
       } finally {
         setLoading(false);
       }
@@ -105,16 +99,16 @@ const User: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-semibold mb-4">Users Records</h1>
+        <h1 className="text-xl font-semibold mb-4">Roles Records</h1>
         <button
           type="button"
           className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
           onClick={() => {
-            setSelectedUser(null);
+            setSelectedRole(null);
             setModalOpen(true);
           }}
         >
-          Create User
+          Create Role
         </button>
       </div>
 
@@ -137,14 +131,14 @@ const User: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => editUser(id)}
+                    onClick={() => editRole(id)}
                     className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
                   >
                     <PencilSquareIcon className="w-5 h-5" />
                   </button>
                   <WithPermission permission="delete_user">
                     <button
-                      onClick={() => handleDeleteUser(id)}
+                      onClick={() => handleDeleteRole(id)}
                       className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
                     >
                       <TrashIcon className="w-5 h-5" />
@@ -158,13 +152,13 @@ const User: React.FC = () => {
           <BaseModal
             isOpen={modalOpen}
             onClose={modalClose}
-            title={selectedUser ? "Edit User" : "Create User"}
+            title={selectedRole ? "Edit Role" : "Create Role"}
           >
-            <UserForm
-              initialData={selectedUser}
+            <RoleForm
+              initialData={selectedRole}
               onCancel={modalClose}
               onSave={handleSave}
-              allRoles={getRolesList()}
+              allPermissions={getPermissionsList()}
             />
           </BaseModal>
         </div>
@@ -173,4 +167,4 @@ const User: React.FC = () => {
   );
 };
 
-export default User;
+export default Role;
