@@ -56,16 +56,19 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSave, onCancel, allP
         />
 
         <div className="mb-4">
-          <label className="block mb-2 font-medium">Roles</label>
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-row justify-between">
+            <h5 className="block mb-2 font-medium">Assign Permissions</h5>
+          </div>
+          <hr className="mt-0 mb-4" />
+          <div className="grid grid-cols-2 gap-4 space-y-2">
             {allPermissions.map((permission) => (
-              <label key={permission.id} className="inline-flex items-center space-x-2">
+              <label key={`permissions-${permission.id}`} className="inline-flex items-center space-x-2">
                 <input
                   name="permissionCheckbox"
                   type="checkbox"
                   checked={form?.permissions?.some((r:Role) => r.id === permission.id)}
                   onChange={() => toggleRole(permission)}
-                  className="form-checkbox h-5 w-5 text-blue-600"
+                  className="form-checkbox h-5 w-5 text-blue-600 cursor-pointe"
                 />
                 <span className="text-gray-800">{permission.name}</span>
               </label>

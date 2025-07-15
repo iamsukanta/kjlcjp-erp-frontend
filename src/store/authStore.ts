@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 
 interface AuthState {
   credentials: { access_token: string, refresh_token: string, type: string } | null;
-  user: { id: string; name: string; email: string } | null;
+  user: { id: string; name: string; email: string, roles: [] } | null;
   permissions: string[];
   login: (credentials: AuthState["credentials"], user: AuthState["user"]) => void;
   logout: () => void;
@@ -28,6 +28,10 @@ export const useAuthStore = create<AuthState>()(
 
 export const getAuthToken = () => {
   return useAuthStore.getState().credentials?.access_token;
+};
+
+export const getAuthUserInformation = () => {
+  return useAuthStore.getState().user;
 };
 
 export const getRefreshToken = () => {

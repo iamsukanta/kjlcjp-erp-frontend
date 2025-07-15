@@ -75,9 +75,7 @@ const User: React.FC = () => {
   };
 
   const editUser = (id: number) => {
-    console.log(id, 'ppo');
     let user = getUsersList().find((item) => item.id == id);
-    console.log(user, 'dfds');
     setSelectedUser(user);
     setModalOpen(true)
   }
@@ -121,7 +119,7 @@ const User: React.FC = () => {
       <hr className="my-3" /> <br />
 
       {loading ? (
-        <div className="text-center py-10 text-gray-500">Loading incomes...</div>
+        <div className="text-center py-10 text-gray-500">Loading users...</div>
       ) : (
         <div>
           <div>
@@ -130,11 +128,11 @@ const User: React.FC = () => {
               data={tableData}
               renderActions={(id:number) => (
                 <>
-                  <button
+                  {/* <button
                     className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
                   >
                     <EyeIcon className="w-5 h-5" />
-                  </button>
+                  </button> */}
                   <button
                     type="button"
                     onClick={() => editUser(id)}
