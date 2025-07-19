@@ -1,8 +1,15 @@
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuthStore, getAuthToken  } from "../../store/authStore";
 
 const LayoutWrapper = () => {
+  const fetchUser = useAuthStore((s) => s.fetchUser);
+  const token = getAuthToken();
+  useEffect(() => {
+    if (token) fetchUser();
+  }, [token]);
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />

@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuthToken, getRefreshToken, useAuthStore } from "../store/authStore";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000/api/v1",
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}`,
 });
 
 // Set Authorization Header on every request
@@ -33,9 +33,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     if (
       error.response?.status === 401 &&
+      error.response?.data?.detail === 'Token is not validated.' &&
       !originalRequest._retry &&
       getRefreshToken()
     ) {
@@ -56,14 +56,12 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await axios.post("http://localhost:8000/api/v1/auth/refresh", {
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {
           refresh_token: getRefreshToken(),
         });
         useAuthStore.getState().login(res.data.credentials, res.data.user);
-
         api.defaults.headers.common["Authorization"] = `Bearer ${res.data.credentials.access_token}`;
         processQueue(null, res.data.credentials.access_token);
-
         return api(originalRequest);
       } catch (err) {
         processQueue(err, null);

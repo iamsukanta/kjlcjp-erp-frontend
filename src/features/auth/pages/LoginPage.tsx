@@ -13,10 +13,9 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await api.post("/auth/login", { email, password });
-      console.log(res.data, 'response ..');
       login(res.data.credentials, res.data.user);
       let permissions:string[] = [];
-      res.data.user?.roles.forEach((role: any) => {
+      await res.data.user?.roles.forEach((role: any) => {
         role.permissions.forEach((permission: any) => {
           permissions.push(permission.name);
         });

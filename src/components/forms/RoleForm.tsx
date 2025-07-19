@@ -60,7 +60,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ initialData, onSave, onCancel, allP
             <h5 className="block mb-2 font-medium">Assign Permissions</h5>
           </div>
           <hr className="mt-0 mb-4" />
-          <div className="grid grid-cols-2 gap-4 space-y-2">
+          <div className="grid grid-cols-3 gap-4 space-y-2">
             {allPermissions.map((permission) => (
               <label key={`permissions-${permission.id}`} className="inline-flex items-center space-x-2">
                 <input

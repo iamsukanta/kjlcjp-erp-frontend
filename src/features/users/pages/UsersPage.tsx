@@ -7,6 +7,7 @@ import React, {useState, useEffect} from "react";
 import Table from "@/components/ui/Table";
 import type { Role, User as UserType } from "@/types/user";
 import { WithPermission } from "../../../components/hoc/WithPermission";
+import { useHasPermission } from "../../../hooks/useHasPermission";
 import {  useUserStore, getUsersList, getRolesList } from "../../../store/userStore";
 import BaseModal from "../../../components/modals/BaseModal";
 import UserForm from "../../../components/forms/UserForm";
@@ -19,6 +20,10 @@ const User: React.FC = () => {
   const setUsers = useUserStore((state) => state.setUsers);
   const setRoles = useUserStore((state) => state.setRoles);
   const setPermissions = useUserStore((state) => state.setPermissions);
+
+  const canEdit = useHasPermission("update_user");
+  const canDelete = useHasPermission("delete_user");
+
   const columns = ["Name", "Email", "Role"];
   const tableData = getUsersList().map((user) => ({
     id: user.id,
@@ -33,14 +38,24 @@ const User: React.FC = () => {
   const fetchUsersRolesPermissions = async () => {
     setLoading(true);
     try {
-      const users = await getUsers();
-      const roles = await getRoles();
-      const permissions = await getPermissions();
-      setUsers(users);
-      setRoles(roles);
-      setPermissions(permissions);
-    } catch (error: any) {
-      console.log(error);
+      const results = await Promise.allSettled([
+        getUsers(),
+        getRoles(),
+        getPermissions(),
+      ]);
+
+      if (results[0].status === "fulfilled") setUsers(results[0].value);
+      if (results[1].status === "fulfilled") setRoles(results[1].value);
+      if (results[2].status === "fulfilled") setPermissions(results[2].value);
+
+      // Optional error logging
+      results.forEach((res, i) => {
+        if (res.status === "rejected") {
+          console.error(`API ${i} failed:`, res.reason);
+        }
+      });
+    } catch (error) {
+      console.error("Unexpected error:", error);
     } finally {
       setLoading(false);
     }
@@ -49,7 +64,7 @@ const User: React.FC = () => {
   const handleSave = async (formData: UserType) => {
     try {
       let role_ids: number[] = [];
-      formData.roles.forEach((role: Role) => {
+      formData?.roles.forEach((role: Role) => {
         role_ids.push(role.id);
       });
       formData.role_ids = role_ids;
@@ -69,7 +84,8 @@ const User: React.FC = () => {
         setUsers(users);
         setModalOpen(false);
       }
-    } catch(error) {
+    } catch(error: any) {
+      alert(error?.response?.data?.detail??'Something went wrong.');
       console.log(error);
     }
   };
@@ -104,16 +120,18 @@ const User: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold mb-4">Users Records</h1>
-        <button
-          type="button"
-          className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
-          onClick={() => {
-            setSelectedUser(null);
-            setModalOpen(true);
-          }}
-        >
-          Create User
-        </button>
+        <WithPermission permission="create_user">
+          <button
+            type="button"
+            className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
+            onClick={() => {
+              setSelectedUser(null);
+              setModalOpen(true);
+            }}
+          >
+            Create User
+          </button>
+        </WithPermission>
       </div>
 
       <hr className="my-3" /> <br />
@@ -126,30 +144,29 @@ const User: React.FC = () => {
             <Table
               columns={columns}
               data={tableData}
-              renderActions={(id:number) => (
-                <>
-                  {/* <button
-                    className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
-                  >
-                    <EyeIcon className="w-5 h-5" />
-                  </button> */}
-                  <button
-                    type="button"
-                    onClick={() => editUser(id)}
-                    className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
-                  >
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </button>
-                  <WithPermission permission="delete_user">
-                    <button
-                      onClick={() => handleDeleteUser(id)}
-                      className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                  </WithPermission>
-                </>
-              )}
+              {...((canEdit || canDelete) && {
+                renderActions: (id: number) => (
+                  <>
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={() => editUser(id)}
+                        className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
+                      >
+                        <PencilSquareIcon className="w-5 h-5" />
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDeleteUser(id)}
+                        className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    )}
+                  </>
+                ),
+              })}
             />
           </div>
 

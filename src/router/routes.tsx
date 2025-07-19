@@ -34,46 +34,46 @@ const routes = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      { index: true, element: <Dashboard /> },
+      { index: true, element:( <PermissionRoute requiredPermission='dashboard_statistics'><Dashboard /></PermissionRoute>) },
       
       {
         path: "incomes",
         children: [
-          { index: true, element: ( <PermissionRoute requiredPermission='create_company'> <Income /> </PermissionRoute>)},
-          { path: "view/:id", element: <IncomeView /> },
-          { path: "create", element: <IncomeCreate /> },
-          { path: "edit/:id", element: <IncomeEdit /> },
+          { index: true, element: ( <PermissionRoute requiredPermission='read_income'><Income /></PermissionRoute>)},
+          { path: "view/:id", element: ( <PermissionRoute requiredPermission='details_income'><IncomeView /></PermissionRoute>)},
+          { path: "create", element: ( <PermissionRoute requiredPermission='create_income'> <IncomeCreate /> </PermissionRoute>) },
+          { path: "edit/:id", element: ( <PermissionRoute requiredPermission='update_income'> <IncomeEdit /> </PermissionRoute>) }
         ],
       },
 
       {
         path: "costs",
         children: [
-          { index: true, element: <Cost /> },
-          { path: "view/:id", element: <CostView /> },
-          { path: "create", element: <CostCreate /> },
-          { path: "edit/:id", element: <CostEdit /> },
+          { index: true, element: ( <PermissionRoute requiredPermission='read_cost'><Cost /></PermissionRoute>)},
+          { path: "view/:id", element: ( <PermissionRoute requiredPermission='details_cost'><CostView /></PermissionRoute>)},
+          { path: "create", element: ( <PermissionRoute requiredPermission='create_cost'> <CostCreate /> </PermissionRoute>) },
+          { path: "edit/:id", element: ( <PermissionRoute requiredPermission='update_cost'> <CostEdit /> </PermissionRoute>) }
         ],
       },
 
       {
         path: "users",
         children: [
-          { index: true, element: <User /> },
+          { index: true, element:( <PermissionRoute requiredPermission='read_user'><User /></PermissionRoute>) },
         ],
       },
 
       {
         path: "roles",
         children: [
-          { index: true, element: <Role /> },
+          { index: true, element:( <PermissionRoute requiredPermission='read_role'><Role /></PermissionRoute>) },
         ],
       },
 
       {
         path: "permissions",
         children: [
-          { index: true, element: <Permission /> },
+          { index: true, element:( <PermissionRoute requiredPermission='read_permission'><Permission /></PermissionRoute>) },
         ],
       },
 

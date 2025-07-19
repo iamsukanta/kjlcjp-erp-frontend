@@ -5,10 +5,9 @@ import { createIncome, updateIncome } from "../../services/incomeApi";
 
 interface Props {
   initialData?: Income;
-  isEdit?: boolean;
 }
 
-const IncomeForm: React.FC<Props> = ({ initialData, isEdit }) => {
+const IncomeForm: React.FC<Props> = ({ initialData }) => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<Income>(initialData || {
@@ -52,7 +51,8 @@ const IncomeForm: React.FC<Props> = ({ initialData, isEdit }) => {
       }
       
       navigate("/dashboard/incomes");
-    } catch(error) {
+    } catch(error: any) {
+      alert(error?.response?.data?.detail??'Something went wrong.');
       console.log(error);
     }
   };

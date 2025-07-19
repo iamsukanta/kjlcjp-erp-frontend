@@ -9,6 +9,7 @@ import { useIncomeStore, getCurrentPage, getPageLimit, getIncomesList, getTotalI
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { WithPermission } from "../../../components/hoc/WithPermission";
+import { useHasPermission } from "../../../hooks/useHasPermission";
 import { getIncomes, deleteIncomeById } from "../../../services/incomeApi";
 import ItemFilter from "../../../components/filters/ItemFilter";
 import Pagination from "../../../components/pagination/pagination";
@@ -30,6 +31,10 @@ const Income: React.FC = () => {
   });
   const [debouncedFilters, setDebouncedFilters] = useState(filters);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const canEdit = useHasPermission("update_income");
+  const canDelete = useHasPermission("delete_income");
+  const canView = useHasPermission("details_income");
 
   useEffect(() => {
     fetchData(debouncedFilters);
@@ -147,13 +152,15 @@ const Income: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold mb-4">Income Records</h1>
-        <button
-          onClick={gotoCreateIncomePage}
-          type="button"
-          className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
-        >
-          Create Income
-        </button>
+        <WithPermission permission="create_income">
+          <button
+            onClick={gotoCreateIncomePage}
+            type="button"
+            className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
+          >
+            Create Income
+          </button>
+        </WithPermission>
       </div>
 
       <hr className="my-3" /> <br />
@@ -171,33 +178,39 @@ const Income: React.FC = () => {
           <Table
             columns={columns}
             data={tableData}
-            renderActions={(id:number) => (
-              <>
-                <button
-                  onClick={() => handleView(id)}
-                  className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
-                >
-                  <EyeIcon className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => handleEdit(id)}
-                  className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
-                >
-                  <PencilSquareIcon className="w-5 h-5" />
-                </button>
-                <WithPermission permission="delete_company">
-                  <button
-                    onClick={() => handleDelete(id)}
-                    className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </WithPermission>
-              </>
-            )}
+            {...((canView || canEdit || canDelete) && {
+              renderActions: (id: number) => (
+                <>
+                  {canView && (
+                    <button
+                      onClick={() => handleView(id)}
+                      className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
+                    >
+                      <EyeIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                  {canEdit && (
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(id)}
+                      className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
+                    >
+                      <PencilSquareIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDelete(id)}
+                      className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                </>
+              ),
+            })}
             totalAmount = { calculateTotalIncome() }
           />
-
           <Pagination
             currentPage={getCurrentPage()}
             totalPages={totalPages}

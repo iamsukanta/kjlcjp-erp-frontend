@@ -9,6 +9,7 @@ import { useCostStore, getCurrentPage, getPageLimit, getCostsList, getTotalCostI
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { WithPermission } from "../../../components/hoc/WithPermission";
+import { useHasPermission } from "../../../hooks/useHasPermission";
 import { getCosts, deleteCostById } from "../../../services/costApi";
 import ItemFilter from "../../../components/filters/ItemFilter";
 import Pagination from "../../../components/pagination/pagination";
@@ -18,6 +19,11 @@ const Cost: React.FC = () => {
   const setCosts = useCostStore((state) => state.setCosts);
   const setPage = useCostStore((state) => state.setPage);
   const setLimit = useCostStore((state) => state.setLimit);
+
+  const canEdit = useHasPermission("update_cost");
+  const canDelete = useHasPermission("delete_cost");
+  const canView = useHasPermission("details_cost");
+
   const setTotalCostItems = useCostStore((state) => state.setTotalCostItems);
   const costs = getCostsList();
   const [loading, setLoading] = useState<boolean>(false);
@@ -147,13 +153,15 @@ const Cost: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold mb-4">Cost Records</h1>
-        <button
-          onClick={gotoCreateCostPage}
-          type="button"
-          className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
-        >
-          Create Cost
-        </button>
+        <WithPermission permission="create_cost">
+          <button
+            onClick={gotoCreateCostPage}
+            type="button"
+            className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
+          >
+            Create Cost
+          </button>
+        </WithPermission>
       </div>
 
       <hr className="my-3" /> <br />
@@ -171,30 +179,37 @@ const Cost: React.FC = () => {
           <Table
             columns={columns}
             data={tableData}
-            renderActions={(id:number) => (
-              <>
-                <button
-                  onClick={() => handleView(id)}
-                  className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
-                >
-                  <EyeIcon className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => handleEdit(id)}
-                  className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
-                >
-                  <PencilSquareIcon className="w-5 h-5" />
-                </button>
-                <WithPermission permission="delete_company">
-                  <button
-                    onClick={() => handleDelete(id)}
-                    className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </WithPermission>
-              </>
-            )}
+            {...((canView || canEdit || canDelete) && {
+              renderActions: (id: number) => (
+                <>
+                  {canView && (
+                    <button
+                      onClick={() => handleView(id)}
+                      className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
+                    >
+                      <EyeIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                  {canEdit && (
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(id)}
+                      className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
+                    >
+                      <PencilSquareIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDelete(id)}
+                      className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                </>
+              ),
+            })}
             totalAmount = { calculateTotalCost() }
           />
 

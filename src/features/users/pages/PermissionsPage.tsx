@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import Table from "@/components/ui/Table";
 import type { Permission as PermissionType } from "@/types/user";
 import { WithPermission } from "../../../components/hoc/WithPermission";
+import { useHasPermission } from "../../../hooks/useHasPermission";
 import { getPermissionsList, useUserStore } from "../../../store/userStore";
 import BaseModal from "../../../components/modals/BaseModal";
 import PermissionForm from "../../../components/forms/PermissionForm";
@@ -17,6 +18,10 @@ const Permission: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState<PermissionType | null>(null);
   const setPermissions = useUserStore((state) => state.setPermissions);
+
+  const canEdit = useHasPermission("update_permission");
+  const canDelete = useHasPermission("delete_permission");
+
   const columns = ["Name"];
   const tableData = getPermissionsList().map((permission) => ({
     id: permission.id,
@@ -55,7 +60,8 @@ const Permission: React.FC = () => {
         setPermissions(permissions);
         setModalOpen(false);
       }
-    } catch (error) {
+    } catch (error: any) {
+      alert(error?.response?.data?.detail??'Something went wrong.');
       console.log(error);
     }
   };
@@ -91,16 +97,18 @@ const Permission: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold mb-4">Permissions Records</h1>
-        <button
-          type="button"
-          className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
-          onClick={() => {
-            setSelectedPermission(null);
-            setModalOpen(true);
-          }}
-        >
-          Create Permission
-        </button>
+        <WithPermission permission="create_permission">
+          <button
+            type="button"
+            className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
+            onClick={() => {
+              setSelectedPermission(null);
+              setModalOpen(true);
+            }}
+          >
+            Create Permission
+          </button>
+        </WithPermission>
       </div>
 
       <hr className="my-3" /> <br />
@@ -113,25 +121,29 @@ const Permission: React.FC = () => {
             <Table
               columns={columns}
               data={tableData}
-              renderActions={(id: number) => (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => editPermission(id)}
-                    className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
-                  >
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </button>
-                  <WithPermission permission="delete_user">
-                    <button
-                      onClick={() => handleDeletePermission(id)}
-                      className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                  </WithPermission>
-                </>
-              )}
+              {...((canEdit || canDelete) && {
+                renderActions: (id: number) => (
+                  <>
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={() => editPermission(id)}
+                        className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
+                      >
+                        <PencilSquareIcon className="w-5 h-5" />
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDeletePermission(id)}
+                        className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    )}
+                  </>
+                ),
+              })}
             />
           </div>
 

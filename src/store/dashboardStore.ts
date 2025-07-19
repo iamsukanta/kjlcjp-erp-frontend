@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { DashboardStatistics } from "../types/dashboard";
 
 interface DashboardState {
-  dashboardProfitStatistics: DashboardStatistics | {};
+  dashboardProfitStatistics: DashboardStatistics;
   setDashboardProfitStatistics: ( dashboardStatistics: DashboardStatistics) => void;
 }
 

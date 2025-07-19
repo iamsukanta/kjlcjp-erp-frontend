@@ -28,23 +28,11 @@ const EditIncomePage = () => {
     if (id) fetchIncome();
   }, [id]);
 
-  const handleSubmit = async (data: Income) => {
-    try {
-      console.log('It worksss ..');
-      await updateIncome(Number(id), data);
-      setIncome(defaultIncome);
-      navigate("/");
-      console.log('It worksss 44..');
-    } catch (err) {
-      console.error("Update error", err);
-    }
-  };
-
   if (!income) return <div>Loading...</div>;
 
   return (
     <div className="p-6">
-      <IncomeForm initialData={income} isEdit />
+      <IncomeForm initialData={income} />
     </div>
   );
 };

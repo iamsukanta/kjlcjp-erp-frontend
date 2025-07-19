@@ -7,6 +7,7 @@ import React, {useState, useEffect} from "react";
 import Table from "@/components/ui/Table";
 import type { Role as RoleType, Permission } from "@/types/user";
 import { WithPermission } from "../../../components/hoc/WithPermission";
+import { useHasPermission } from "../../../hooks/useHasPermission";
 import {  getPermissionsList, getRolesList, useUserStore } from "../../../store/userStore";
 import BaseModal from "../../../components/modals/BaseModal";
 import RoleForm from "../../../components/forms/RoleForm";
@@ -18,6 +19,10 @@ const Role: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<RoleType | null>(null);
   const setRoles = useUserStore((state) => state.setRoles);
   const setPermissions = useUserStore((state) => state.setPermissions);
+
+  const canEdit = useHasPermission("update_role");
+  const canDelete = useHasPermission("delete_role");
+
   const columns = ["Name", "Permission"];
   const tableData = getRolesList().map((role) => ({
     id: role.id,
@@ -65,7 +70,8 @@ const Role: React.FC = () => {
         setRoles(roles);
         setModalOpen(false);
       }
-    } catch(error) {
+    } catch(error: any) {
+      alert(error?.response?.data?.detail??'Something went wrong.');
       console.log(error);
     }
   };
@@ -100,16 +106,18 @@ const Role: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold mb-4">Roles Records</h1>
-        <button
-          type="button"
-          className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
-          onClick={() => {
-            setSelectedRole(null);
-            setModalOpen(true);
-          }}
-        >
-          Create Role
-        </button>
+        <WithPermission permission="create_role">
+          <button
+            type="button"
+            className="w-auto px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
+            onClick={() => {
+              setSelectedRole(null);
+              setModalOpen(true);
+            }}
+          >
+            Create Role
+          </button>
+        </WithPermission>
       </div>
 
       <hr className="my-3" /> <br />
@@ -122,30 +130,29 @@ const Role: React.FC = () => {
             <Table
               columns={columns}
               data={tableData}
-              renderActions={(id:number) => (
-                <>
-                  {/* <button
-                    className="p-1 text-blue-600 hover:text-blue-800 cursor-pointer"
-                  >
-                    <EyeIcon className="w-5 h-5" />
-                  </button> */}
-                  <button
-                    type="button"
-                    onClick={() => editRole(id)}
-                    className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
-                  >
-                    <PencilSquareIcon className="w-5 h-5" />
-                  </button>
-                  <WithPermission permission="delete_user">
-                    <button
-                      onClick={() => handleDeleteRole(id)}
-                      className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                  </WithPermission>
-                </>
-              )}
+              {...((canEdit || canDelete) && {
+                renderActions: (id: number) => (
+                  <>
+                    {canEdit && (
+                      <button
+                        type="button"
+                        onClick={() => editRole(id)}
+                        className="p-1 text-yellow-600 hover:text-yellow-800 cursor-pointer"
+                      >
+                        <PencilSquareIcon className="w-5 h-5" />
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDeleteRole(id)}
+                        className="p-1 text-red-600 hover:text-red-800 cursor-pointer"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    )}
+                  </>
+                ),
+              })}
             />
           </div>
 

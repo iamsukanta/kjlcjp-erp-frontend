@@ -5,11 +5,9 @@ import { createCost, updateCost } from "../../services/costApi";
 
 interface Props {
   initialData?: Cost;
-  onSubmit: (data: Cost) => void;
-  isEdit?: boolean;
 }
 
-const CostForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
+const CostForm: React.FC<Props> = ({ initialData }) => {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<Cost>(initialData || {
@@ -53,7 +51,8 @@ const CostForm: React.FC<Props> = ({ initialData, onSubmit, isEdit }) => {
       }
       
       navigate("/dashboard/costs");
-    } catch(error) {
+    } catch(error: any) {
+      alert(error?.response?.data?.detail??'Something went wrong.');
       console.log(error);
     }
   };

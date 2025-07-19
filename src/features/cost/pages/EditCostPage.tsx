@@ -27,21 +27,12 @@ const EditCostPage = () => {
     };
     if (id) fetchCost();
   }, [id]);
-
-  const handleSubmit = async (data: Cost) => {
-    try {
-      await updateCost(Number(id), data);
-      navigate("/dashboard/costs");
-    } catch (err) {
-      console.error("Update error", err);
-    }
-  };
-
+  
   if (!cost) return <div>Loading...</div>;
 
   return (
     <div className="p-6">
-      <CostForm initialData={cost} onSubmit={handleSubmit} isEdit />
+      <CostForm initialData={cost} />
     </div>
   );
 };
